@@ -1,3 +1,7 @@
+"use client";
+
+import { useImageGradient } from "@/lib/useImageGradient";
+
 type Props = {
   title: string;
   description: string;
@@ -17,8 +21,12 @@ export default function ArticleCardPreview({
   imageY = 50,
   className = "",
 }: Props) {
+  const gradient = useImageGradient(imageUrl);
   return (
-    <div className={`relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/15 p-4 aspect-[6/5] ${className}`}>
+    <div
+      className={`relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/15 p-4 aspect-[6/5] ${className}`}
+      style={gradient ? { background: gradient } : undefined}
+    >
       {imageUrl && (
         <img
           src={imageUrl}
