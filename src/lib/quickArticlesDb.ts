@@ -4,7 +4,10 @@ export type QuickArticle = {
   slug: string;
   title: string;
   description: string;
-  department?: string | null;
+  department?: string;
+  imageUrl?: string;
+  imageX?: number;
+  imageY?: number;
   position: number;
 };
 
@@ -18,13 +21,31 @@ export function listQuickArticles(): QuickArticle[] {
   const db = getDb();
   const rows = db
     .prepare(
-      `SELECT a.slug, a.title, a.description, a.department, qa.position
+      `SELECT a.slug, a.title, a.description, a.department, a.image_url as imageUrl, a.image_x as imageX, a.image_y as imageY, qa.position
        FROM quick_articles qa
        JOIN articles a ON a.id = qa.article_id
        ORDER BY qa.position ASC`
     )
-    .all() as QuickArticle[];
-  return rows;
+    .all() as Array<{
+      slug: string;
+      title: string;
+      description: string;
+      department?: string | null;
+      imageUrl?: string | null;
+      imageX?: number | null;
+      imageY?: number | null;
+      position: number;
+    }>;
+  return rows.map((r) => ({
+    slug: r.slug,
+    title: r.title,
+    description: r.description,
+    department: r.department || undefined,
+    imageUrl: r.imageUrl || undefined,
+    imageX: r.imageX ?? undefined,
+    imageY: r.imageY ?? undefined,
+    position: r.position,
+  }));
 }
 
 export function isQuickArticle(slug: string): boolean {

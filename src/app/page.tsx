@@ -2,6 +2,7 @@ import Link from "next/link";
 import { listQuickArticles } from "@/lib/quickArticlesDb";
 import { listArticles } from "@/lib/articlesDb";
 import ArticleCard from "@/components/ArticleCard";
+import QuickArticleCard from "@/components/QuickArticleCard";
 
 export const dynamic = "force-dynamic";
 
@@ -41,18 +42,18 @@ export default function Home() {
               {quickArticles.length > 0 && (
                 <>
                   {quickArticles.map((q) => (
-                    <li
-                      key={q.slug}
-                      className="rounded-2xl border border-black/10 dark:border-white/15 p-4 hover:border-brand/50 h-64 flex flex-col overflow-hidden"
-                    >
-                      <div className="text-xs uppercase tracking-wide text-foreground/60">{q.department || "Article"}</div>
-                      <div className="mt-1 font-medium line-clamp-3">{q.title}</div>
-                      <p className="mt-1 text-sm text-foreground/70 line-clamp-4">{q.description}</p>
-                      <div className="mt-auto pt-3">
-                        <Link href={`/articles/${q.slug}`} className="text-sm text-brand hover:underline">Open</Link>
-                      </div>
-                      </li>
-                    ))}
+                    <li key={q.slug} className="h-64">
+                      <QuickArticleCard
+                        title={q.title}
+                        description={q.description}
+                        department={q.department || undefined}
+                        imageUrl={q.imageUrl}
+                        imageX={q.imageX}
+                        imageY={q.imageY}
+                        href={`/articles/${q.slug}`}
+                      />
+                    </li>
+                  ))}
                   {/* placeholders to keep 3-in-row layout */}
                   {Array.from({ length: Math.max(0, 3 - quickArticles.length) }).map((_, i) => (
                     <li
