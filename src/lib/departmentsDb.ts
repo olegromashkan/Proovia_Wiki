@@ -17,6 +17,15 @@ export function addDepartment(name: string): Department {
   return dep;
 }
 
+export function updateDepartment(id: number, name: string): Department {
+  const db = getDb();
+  const trimmed = name.trim();
+  if (!trimmed) throw new Error("name required");
+  db.prepare(`UPDATE departments SET name = ? WHERE id = ?`).run(trimmed, id);
+  const dep = db.prepare(`SELECT id, name FROM departments WHERE id = ?`).get(id) as Department;
+  return dep;
+}
+
 export function deleteDepartment(id: number): void {
   const db = getDb();
   db.prepare(`DELETE FROM departments WHERE id = ?`).run(id);
