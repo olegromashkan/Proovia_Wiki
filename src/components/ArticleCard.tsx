@@ -27,34 +27,23 @@ export default function ArticleCard({
   className = "",
 }: Props) {
   const gradient = useImageGradient(imageUrl);
-  return (
-    <div
-      className={`group relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/15 p-4 aspect-[6/5] ${className}`}
-      style={gradient ? { background: gradient } : undefined}
-    >
+  const content = (
+    <>
       {imageUrl && (
         <img
           src={imageUrl}
           alt=""
           aria-hidden="true"
           className="pointer-events-none select-none absolute max-w-none transition duration-300 ease-out group-hover:blur-xl"
-          style={{ left: `${imageX}%`, top: `${imageY}%`, transform: 'translate(-50%, -50%)', width: '130%', willChange: 'filter' }}
+          style={{ left: `${imageX}%`, top: `${imageY}%`, transform: "translate(-50%, -50%)", width: "130%", willChange: "filter" }}
         />
       )}
       <div
         className="relative z-10 flex h-full flex-col transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-        style={{ willChange: 'transform' }}
+        style={{ willChange: "transform" }}
       >
         <div className="text-xs uppercase tracking-wide text-foreground/60">{department || "Article"}</div>
-        <h3 className="mt-1 font-medium">
-          {href ? (
-            <Link href={href} className="hover:text-brand">
-              {title || "Title"}
-            </Link>
-          ) : (
-            title || "Title"
-          )}
-        </h3>
+        <h3 className="mt-1 font-medium">{title || "Title"}</h3>
         <p className="mt-1 text-sm text-foreground/70 line-clamp-4">{description || "Description"}</p>
         {tags && tags.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2 text-xs text-foreground/60">
@@ -66,7 +55,22 @@ export default function ArticleCard({
           </div>
         )}
       </div>
-    </div>
+    </>
   );
+
+  const commonProps = {
+    className: `group relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/15 p-4 aspect-[6/5] ${className}`,
+    style: gradient ? { background: gradient } : undefined,
+  };
+
+  if (href) {
+    return (
+      <Link href={href} {...commonProps}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div {...commonProps}>{content}</div>;
 }
 
