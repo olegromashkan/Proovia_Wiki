@@ -26,7 +26,8 @@ export default function QuickArticleCard({
 }: Props) {
   const gradient = useImageGradient(imageUrl);
   return (
-    <div
+    <Link
+      href={href}
       className={`group relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/15 p-4 flex flex-col transition hover:border-brand/50 h-full ${className}`}
       style={gradient ? { background: gradient } : undefined}
     >
@@ -44,15 +45,10 @@ export default function QuickArticleCard({
         style={{ willChange: 'transform' }}
       >
         <div className="text-xs uppercase tracking-wide text-foreground/60">{department || "Article"}</div>
-        <div className="mt-1 font-medium line-clamp-3">{title}</div>
+        <div className="mt-1 font-medium line-clamp-3 group-hover:text-brand">{title}</div>
         <p className="mt-1 text-sm text-foreground/70 line-clamp-4">{description}</p>
-        <div className="mt-auto pt-3">
-          <Link href={href} className="text-sm text-brand hover:underline">
-            Open
-          </Link>
-        </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
