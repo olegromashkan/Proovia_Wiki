@@ -89,6 +89,12 @@ export default function Home() {
         >
           Training
         </Link>
+        <Link
+          href="/orgchart"
+          className="inline-flex items-center rounded-full border border-black/10 dark:border-white/15 px-4 py-2 text-sm font-medium hover:border-brand/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+        >
+          Org Chart
+        </Link>
       </div>
 
       <section className="space-y-4">
