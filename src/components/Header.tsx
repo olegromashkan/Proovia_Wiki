@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Icon from "./Icon";
 
 const nav = [
   { href: "/", label: "Home" },
@@ -22,23 +23,32 @@ export default function Header() {
             <span>Proovia E‑Learning</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6 text-sm">
-            {nav.map((item) => {
-              const active = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={
-                    "transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 rounded-md px-1 " +
-                    (active ? "text-brand font-medium" : "text-foreground/80")
-                  }
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-6 text-sm">
+              {nav.map((item) => {
+                const active = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={
+                      "transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 rounded-md px-1 " +
+                      (active ? "text-brand font-medium" : "text-foreground/80")
+                    }
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <Link
+              href="/settings"
+              className="p-2 text-foreground/80 hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 rounded-md"
+            >
+              <Icon name="settings" className="w-5 h-5" />
+            </Link>
+          </div>
         </div>
       </div>
     </header>
