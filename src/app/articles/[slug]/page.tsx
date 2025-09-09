@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { getArticle } from "@/lib/articlesDb";
 import sanitizeHtml from "sanitize-html";
+import Link from "next/link";
 
 // Types
 type Params = { slug: string };
@@ -86,8 +87,8 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const plain = htmlToPlainText(article.contentHtml || "");
   const readMin = calcReadingMinutes(plain);
 
-  const updatedAt = (article as any)?.updatedAt ? new Date((article as any).updatedAt) : null;
-  const author = (article as any)?.author || null;
+  const updatedAt = article.updatedAt ? new Date(article.updatedAt) : null;
+  const author = (article as { author?: string }).author || null;
 
   const safeHtml = sanitizeHtml(article.contentHtml, sanitizeOptions);
 
@@ -104,12 +105,12 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
                 { label: article.title },
               ]}
             />
-            <a
+            <Link
               href={`/admin/articles/${article.slug}/edit`}
               className="inline-flex items-center rounded-full border border-black/10 dark:border-white/15 px-3 py-1 text-xs font-medium hover:border-brand/60"
             >
               Edit
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -150,14 +151,14 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         {article.tags && article.tags.length > 0 ? (
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
             {article.tags.map((t: string) => (
-              <a
+              <Link
                 key={t}
                 href={`/articles?q=${encodeURIComponent(t)}`}
                 className="group inline-flex items-center gap-1 rounded-full border border-black/10 px-3 py-1 text-foreground/70 hover:border-brand/60 hover:text-foreground dark:border-white/15"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-brand/60 transition group-hover:bg-brand" />
                 #{t}
-              </a>
+              </Link>
             ))}
           </div>
         ) : null}
@@ -188,9 +189,21 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             <div className="rounded-2xl border border-black/10 p-4 dark:border-white/10">
               <div className="text-xs font-semibold uppercase tracking-wider text-foreground/60">Related</div>
               <ul className="mt-3 space-y-2 text-sm text-foreground/70">
-                <li><a href="/articles?q=training" className="hover:text-foreground">Training basics</a></li>
-                <li><a href="/articles?q=policy" className="hover:text-foreground">Company policies</a></li>
-                <li><a href="/articles?q=safety" className="hover:text-foreground">Safety guides</a></li>
+                <li>
+                  <Link href="/articles?q=training" className="hover:text-foreground">
+                    Training basics
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/articles?q=policy" className="hover:text-foreground">
+                    Company policies
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/articles?q=safety" className="hover:text-foreground">
+                    Safety guides
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>

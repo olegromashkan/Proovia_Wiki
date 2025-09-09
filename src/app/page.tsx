@@ -48,10 +48,10 @@ export default function Home() {
                       <div className="mt-1 font-medium line-clamp-3">{q.title}</div>
                       <p className="mt-1 text-sm text-foreground/70 line-clamp-4">{q.description}</p>
                       <div className="mt-auto pt-3">
-                        <a href={`/articles/${q.slug}`} className="text-sm text-brand hover:underline">Open</a>
+                        <Link href={`/articles/${q.slug}`} className="text-sm text-brand hover:underline">Open</Link>
                       </div>
-                    </li>
-                  ))}
+                      </li>
+                    ))}
                   {/* placeholders to keep 3-in-row layout */}
                   {Array.from({ length: Math.max(0, 3 - quickArticles.length) }).map((_, i) => (
                     <li
