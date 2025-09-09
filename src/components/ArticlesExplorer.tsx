@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useImageGradient } from "@/lib/useImageGradient";
+import ArticleCard from "@/components/ArticleCard";
 
 type Item = {
   slug: string;
@@ -101,48 +100,21 @@ export default function ArticlesExplorer({
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((a) => (
-            <ArticleItem key={a.slug} item={a} />
+            <li key={a.slug}>
+              <ArticleCard
+                title={a.title}
+                description={a.description}
+                department={a.department}
+                tags={a.tags}
+                imageUrl={a.imageUrl}
+                imageX={a.imageX}
+                imageY={a.imageY}
+                href={`/articles/${a.slug}`}
+              />
+            </li>
           ))}
         </ul>
       )}
     </div>
-  );
-}
-
-type ArticleItemProps = { item: Item };
-
-function ArticleItem({ item }: ArticleItemProps) {
-  const gradient = useImageGradient(item.imageUrl);
-  return (
-    <li
-      className="relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/15 p-4 aspect-[6/5]"
-      style={gradient ? { background: gradient } : undefined}
-    >
-      {item.imageUrl && (
-        <img
-          src={item.imageUrl}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none select-none absolute max-w-none"
-          style={{ left: `${item.imageX ?? 50}%`, top: `${item.imageY ?? 50}%`, transform: 'translate(-50%, -50%)', width: '130%' }}
-        />
-      )}
-      <div className="relative z-10 flex h-full flex-col">
-        <div className="text-xs uppercase tracking-wide text-foreground/60">{item.department}</div>
-        <h3 className="mt-1 font-medium">
-          <Link href={`/articles/${item.slug}`} className="hover:text-brand">
-            {item.title}
-          </Link>
-        </h3>
-        <p className="mt-1 text-sm text-foreground/70 line-clamp-4">{item.description}</p>
-        {item.tags && item.tags.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-2 text-xs text-foreground/60">
-            {item.tags.map((t) => (
-              <span key={t} className="rounded-full border border-black/10 dark:border-white/15 px-2 py-1">#{t}</span>
-            ))}
-          </div>
-        )}
-      </div>
-    </li>
   );
 }
