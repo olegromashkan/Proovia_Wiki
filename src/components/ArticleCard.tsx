@@ -27,9 +27,11 @@ export default function ArticleCard({
   className = "",
 }: Props) {
   const gradient = useImageGradient(imageUrl);
+  const Wrapper = href ? Link : "div";
   return (
-    <div
-      className={`group relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/15 p-4 aspect-[6/5] ${className}`}
+    <Wrapper
+      {...(href ? { href } : {})}
+      className={`group relative block overflow-hidden rounded-2xl border border-black/10 dark:border-white/15 p-4 aspect-[6/5] ${className}`}
       style={gradient ? { background: gradient } : undefined}
     >
       {imageUrl && (
@@ -46,14 +48,8 @@ export default function ArticleCard({
         style={{ willChange: 'transform' }}
       >
         <div className="text-xs uppercase tracking-wide text-foreground/60">{department || "Article"}</div>
-        <h3 className="mt-1 font-medium">
-          {href ? (
-            <Link href={href} className="hover:text-brand">
-              {title || "Title"}
-            </Link>
-          ) : (
-            title || "Title"
-          )}
+        <h3 className="mt-1 font-medium group-hover:text-brand">
+          {title || "Title"}
         </h3>
         <p className="mt-1 text-sm text-foreground/70 line-clamp-4">{description || "Description"}</p>
         {tags && tags.length > 0 && (
@@ -66,7 +62,7 @@ export default function ArticleCard({
           </div>
         )}
       </div>
-    </div>
+    </Wrapper>
   );
 }
 
