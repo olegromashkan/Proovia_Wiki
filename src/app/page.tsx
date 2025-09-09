@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listQuickArticles } from "@/lib/quickArticlesDb";
 import { listArticles } from "@/lib/articlesDb";
+import ArticleCard from "@/components/ArticleCard";
 
 export const dynamic = "force-dynamic";
 
@@ -101,25 +102,17 @@ export default function Home() {
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {articles.map((a) => (
-              <li key={a.slug} className="relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/15 p-4 aspect-[6/5]">
-                {a.imageUrl && (
-                  <img
-                    src={a.imageUrl}
-                    alt=""
-                    aria-hidden="true"
-                    className="pointer-events-none select-none absolute max-w-none"
-                    style={{ left: `${a.imageX ?? 50}%`, top: `${a.imageY ?? 50}%`, transform: 'translate(-50%, -50%)', width: '130%' }}
-                  />
-                )}
-                <div className="relative z-10 flex h-full flex-col">
-                  <div className="text-xs uppercase tracking-wide text-foreground/60">{a.department}</div>
-                  <h3 className="mt-1 font-medium">
-                    <Link href={`/articles/${a.slug}`} className="hover:text-brand">
-                      {a.title}
-                    </Link>
-                  </h3>
-                  <p className="mt-1 text-sm text-foreground/70 line-clamp-4">{a.description}</p>
-                </div>
+              <li key={a.slug}>
+                <ArticleCard
+                  title={a.title}
+                  description={a.description}
+                  department={a.department}
+                  tags={a.tags}
+                  imageUrl={a.imageUrl}
+                  imageX={a.imageX}
+                  imageY={a.imageY}
+                  href={`/articles/${a.slug}`}
+                />
               </li>
             ))}
           </ul>

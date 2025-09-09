@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useImageGradient } from "@/lib/useImageGradient";
 
 type Props = {
@@ -9,16 +10,20 @@ type Props = {
   imageUrl?: string;
   imageX?: number;
   imageY?: number;
+  tags?: string[];
+  href?: string;
   className?: string;
 };
 
-export default function ArticleCardPreview({
+export default function ArticleCard({
   title,
   description,
   department,
   imageUrl,
   imageX = 50,
   imageY = 50,
+  tags,
+  href,
   className = "",
 }: Props) {
   const gradient = useImageGradient(imageUrl);
@@ -37,9 +42,26 @@ export default function ArticleCardPreview({
         />
       )}
       <div className="relative z-10 flex h-full flex-col">
-        <div className="text-xs uppercase tracking-wide text-foreground/60">{department || 'Article'}</div>
-        <h3 className="mt-1 font-medium">{title || 'Title'}</h3>
-        <p className="mt-1 text-sm text-foreground/70 line-clamp-4">{description || 'Description'}</p>
+        <div className="text-xs uppercase tracking-wide text-foreground/60">{department || "Article"}</div>
+        <h3 className="mt-1 font-medium">
+          {href ? (
+            <Link href={href} className="hover:text-brand">
+              {title || "Title"}
+            </Link>
+          ) : (
+            title || "Title"
+          )}
+        </h3>
+        <p className="mt-1 text-sm text-foreground/70 line-clamp-4">{description || "Description"}</p>
+        {tags && tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2 text-xs text-foreground/60">
+            {tags.map((t) => (
+              <span key={t} className="rounded-full border border-black/10 dark:border-white/15 px-2 py-1">
+                #{t}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

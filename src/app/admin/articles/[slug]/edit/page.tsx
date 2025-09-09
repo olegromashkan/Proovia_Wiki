@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import RichEditor from "@/components/RichEditor";
-import ArticleCardPreview from "@/components/ArticleCardPreview";
+import ArticleCard from "@/components/ArticleCard";
 import Modal from "@/components/Modal";
 import Icon from "@/components/Icon";
 // departments loaded from API
@@ -220,7 +220,7 @@ export default function EditArticlePage() {
                   <input type="number" min={0} max={100} value={cardY} onChange={(e) => setCardY(Number(e.target.value))} className="w-16 rounded-full border border-black/10 dark:border-white/15 bg-background px-2 py-1" />
                 </div>
               </div>
-              <ArticleCardPreview className="w-full" title={title} description={description} department={department} imageUrl={cardImageUrl} imageX={cardX} imageY={cardY} />
+              <ArticleCard className="w-full" title={title} description={description} department={department} imageUrl={cardImageUrl} imageX={cardX} imageY={cardY} />
             </div>
 
             {/* Quick links actions */}
@@ -231,6 +231,10 @@ export default function EditArticlePage() {
                 <button type="button" onClick={addToQuick} className="inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/15 px-4 py-2 text-sm font-medium hover:border-brand/60"><Icon name="star" /> Add to quick</button>
               )}
             </div>
+
+            {error && (
+              <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400">{error}</div>
+            )}
 
             {/* Actions */}
             <div className="flex gap-3">

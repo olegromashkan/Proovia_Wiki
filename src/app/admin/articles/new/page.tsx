@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import RichEditor from "@/components/RichEditor";
-import ArticleCardPreview from "@/components/ArticleCardPreview";
+import ArticleCard from "@/components/ArticleCard";
 
 export default function NewArticlePage() {
   const [title, setTitle] = useState("");
@@ -129,7 +129,7 @@ export default function NewArticlePage() {
                   <input type="number" min={0} max={100} value={cardY} onChange={(e) => setCardY(Number(e.target.value))} className="w-16 rounded-full border border-black/10 dark:border-white/15 bg-background px-2 py-1" />
                 </div>
               </div>
-              <ArticleCardPreview className="w-full" title={title} description={description} department={department} imageUrl={cardImageUrl} imageX={cardX} imageY={cardY} />
+              <ArticleCard className="w-full" title={title} description={description} department={department} imageUrl={cardImageUrl} imageX={cardX} imageY={cardY} />
             </div>
 
             {tags.length > 0 && (
