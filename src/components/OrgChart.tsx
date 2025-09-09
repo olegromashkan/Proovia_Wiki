@@ -1,13 +1,16 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ReactFlow, {
   addEdge,
   Background,
   Controls,
   Connection,
   Edge,
+  Handle,
   Node,
+  NodeProps,
+  Position,
   useEdgesState,
   useNodesState,
 } from 'reactflow';
@@ -25,6 +28,29 @@ export type PersonData = {
 const initialNodes: Node<PersonData>[] = [];
 const initialEdges: Edge[] = [];
 
+const gridPosition = (index: number) => {
+  const column = index % 3;
+  const row = Math.floor(index / 3);
+  return { x: column * 220, y: row * 140 };
+};
+
+function PersonNode({ data }: NodeProps<PersonData>) {
+  return (
+    <div className="rounded-md border bg-white p-2 shadow-sm">
+      <Handle type="target" position={Position.Top} />
+      <div className="font-medium leading-tight">
+        {data.firstName} {data.lastName}
+      </div>
+      {data.position && (
+        <div className="text-xs text-gray-500">{data.position}</div>
+      )}
+      <Handle type="source" position={Position.Bottom} />
+    </div>
+  );
+}
+
+const nodeTypes = { person: PersonNode } as const;
+
 export default function OrgChart() {
   const [nodes, setNodes, onNodesChange] = useNodesState<PersonData>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -41,6 +67,19 @@ export default function OrgChart() {
     (connection: Edge | Connection) => setEdges((eds) => addEdge(connection, eds)),
     [setEdges],
   );
+
+  useEffect(() => {
+    const saved = localStorage.getItem('org-chart');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.nodes) setNodes(parsed.nodes);
+      if (parsed.edges) setEdges(parsed.edges);
+    }
+  }, [setNodes, setEdges]);
+
+  useEffect(() => {
+    localStorage.setItem('org-chart', JSON.stringify({ nodes, edges }));
+  }, [nodes, edges]);
 
   const onNodeClick = useCallback((_: unknown, node: Node<PersonData>) => {
     setForm({ id: node.id, ...node.data });
@@ -61,6 +100,7 @@ export default function OrgChart() {
           n.id === form.id
             ? {
                 ...n,
+                type: 'person',
                 data: { ...form, label: form.firstName + ' ' + form.lastName },
               }
             : n,
@@ -71,7 +111,8 @@ export default function OrgChart() {
       setNodes((nds) =>
         nds.concat({
           id,
-          position: { x: Math.random() * 250, y: Math.random() * 250 },
+          type: 'person',
+          position: gridPosition(nds.length),
           data: { ...form, label: form.firstName + ' ' + form.lastName },
         }),
       );
@@ -136,6 +177,8 @@ export default function OrgChart() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onNodeClick={onNodeClick}
+          nodeTypes={nodeTypes}
+          fitView
         >
           <Background />
           <Controls />
