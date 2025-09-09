@@ -10,7 +10,6 @@ export const dynamic = "force-dynamic";
 
 // --- Helpers ---------------------------------------------------------------
 function htmlToPlainText(html: string) {
-  // quick + safe-ish strip for reading-time (sanitized later for rendering)
   return html
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
@@ -22,7 +21,7 @@ function htmlToPlainText(html: string) {
 }
 
 function calcReadingMinutes(text: string) {
-  const WORDS_PER_MIN = 220; // comfortable average
+  const WORDS_PER_MIN = 220;
   const words = text.split(/\s+/).filter(Boolean).length || 0;
   return Math.max(1, Math.round(words / WORDS_PER_MIN));
 }
@@ -60,14 +59,10 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
     iframe: ["src", "title", "allow", "allowfullscreen", "frameborder"],
     video: ["controls", "poster", "width", "height"],
     source: ["src", "type"],
-    table: ["class"],
-    th: ["colspan", "rowspan", "scope"],
-    td: ["colspan", "rowspan"],
   },
   allowedSchemes: ["http", "https", "mailto"],
   allowedSchemesByTag: { img: ["http", "https", "data"], source: ["http", "https", "data"] },
   transformTags: {
-    // ensure external links are safe
     a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
   },
 };
@@ -78,20 +73,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }) 
   const article = await getArticle(slug);
   const title = article ? `${article.title} | Proovia E‑Learning` : "Article";
   const description = article?.description || "Training article";
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: "article",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
-  };
+  return { title, description };
 }
 
 // --- Page -----------------------------------------------------------------
@@ -104,7 +86,6 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const plain = htmlToPlainText(article.contentHtml || "");
   const readMin = calcReadingMinutes(plain);
 
-  // Optional fields handled safely if present in DB
   const updatedAt = (article as any)?.updatedAt ? new Date((article as any).updatedAt) : null;
   const author = (article as any)?.author || null;
 
@@ -112,13 +93,8 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
 
   return (
     <article className="mx-auto max-w-4xl px-4 pb-16">
-      {/* Reading progress bar */}
-      <div className="sticky top-0 z-20 -mx-4 h-1 bg-transparent">
-        <div id="reading-progress" className="h-1 w-0 bg-brand transition-[width] duration-150 ease-out" />
-      </div>
-
-      {/* Top bar with breadcrumbs and quick utilities (no admin actions) */}
-      <div className="sticky top-1 z-10 -mx-4 mb-4 border-b border-black/5 bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:border-white/10">
+      {/* Top bar with breadcrumbs and edit link */}
+      <div className="sticky top-0 z-10 -mx-4 mb-4 border-b border-black/5 bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:border-white/10">
         <div className="mx-auto max-w-4xl px-4">
           <div className="flex items-center justify-between py-3">
             <Breadcrumbs
@@ -128,10 +104,12 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
                 { label: article.title },
               ]}
             />
-            <div className="hidden gap-2 md:flex">
-              <a href="javascript:window.print()" className="rounded-full border border-black/10 px-3 py-1 text-xs font-medium hover:border-brand/60 dark:border-white/15">Print</a>
-              <button id="copy-url-btn" className="rounded-full border border-black/10 px-3 py-1 text-xs font-medium hover:border-brand/60 dark:border-white/15">Copy link</button>
-            </div>
+            <a
+              href={`/admin/articles/${article.slug}/edit`}
+              className="inline-flex items-center rounded-full border border-black/10 dark:border-white/15 px-3 py-1 text-xs font-medium hover:border-brand/60"
+            >
+              Edit
+            </a>
           </div>
         </div>
       </div>
@@ -166,13 +144,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           </p>
         ) : null}
         {author ? (
-          <div className="mt-4 inline-flex items-center gap-3 rounded-xl border border-black/10 bg-black/5 px-3 py-2 text-sm text-foreground/70 dark:border-white/10 dark:bg-white/10">
-            <div className="size-8 rounded-full bg-gradient-to-br from-brand/60 to-brand/30" />
-            <div>
-              <div className="font-medium text-foreground">{author}</div>
-              <div className="text-xs">Proovia E‑Learning</div>
-            </div>
-          </div>
+          <div className="mt-4 text-sm text-foreground/60">By {author}</div>
         ) : null}
 
         {article.tags && article.tags.length > 0 ? (
@@ -191,112 +163,39 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
         ) : null}
       </header>
 
-      {/* Content + Right rail */}
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_280px]">
+      {/* Content + sidebar */}
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_260px]">
         <div>
           <div className="my-6 h-px w-full bg-black/10 dark:bg-white/10" />
           <div
-            id="article-content"
-            className="prose prose-neutral dark:prose-invert max-w-none prose-headings:scroll-mt-28 prose-h1:font-bold prose-h2:mt-10 prose-h3:mt-8 prose-p:text-foreground/90 prose-a:decoration-brand/60 prose-a:underline-offset-4 hover:prose-a:text-foreground prose-img:rounded-xl prose-pre:rounded-xl prose-pre:p-4 prose-code:before:content-none prose-code:after:content-none prose-li:my-1"
+            className="prose prose-neutral dark:prose-invert max-w-none prose-headings:scroll-mt-24 prose-h1:font-bold prose-h2:mt-10 prose-h3:mt-8 prose-p:text-foreground/90 prose-a:decoration-brand/60 prose-a:underline-offset-4 hover:prose-a:text-foreground prose-img:rounded-xl prose-pre:rounded-xl prose-pre:p-4 prose-code:before:content-none prose-code:after:content-none prose-li:my-1"
             dangerouslySetInnerHTML={{ __html: safeHtml }}
           />
         </div>
 
-        {/* Right rail: professional utilities */}
-        <aside className="sticky top-24 hidden self-start md:block">
-          <div className="space-y-4">
-            {/* TOC */}
+        {/* Sidebar meta */}
+        <aside className="sticky top-20 hidden self-start md:block">
+          <div className="space-y-6">
+            {/* Table of contents placeholder */}
             <div className="rounded-2xl border border-black/10 p-4 dark:border-white/10">
               <div className="text-xs font-semibold uppercase tracking-wider text-foreground/60">On this page</div>
-              <nav id="toc" className="mt-3 space-y-1 text-sm text-foreground/70">
+              <nav id="toc" className="mt-3 text-sm text-foreground/70">
                 <div className="text-foreground/50">Headings will appear as you scroll</div>
               </nav>
             </div>
 
-          
-
-            {/* Feedback */}
+            {/* Related articles */}
             <div className="rounded-2xl border border-black/10 p-4 dark:border-white/10">
-              <div className="text-xs font-semibold uppercase tracking-wider text-foreground/60">Feedback</div>
-              <p className="mt-2 text-sm text-foreground/70">Was this article helpful?</p>
-              <div className="mt-3 flex gap-2">
-                <button data-feedback="up" className="rounded-xl border border-black/10 px-3 py-2 text-sm hover:border-brand/60 dark:border-white/15">Yes</button>
-                <button data-feedback="down" className="rounded-xl border border-black/10 px-3 py-2 text-sm hover:border-brand/60 dark:border-white/15">No</button>
-              </div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-foreground/60">Related</div>
+              <ul className="mt-3 space-y-2 text-sm text-foreground/70">
+                <li><a href="/articles?q=training" className="hover:text-foreground">Training basics</a></li>
+                <li><a href="/articles?q=policy" className="hover:text-foreground">Company policies</a></li>
+                <li><a href="/articles?q=safety" className="hover:text-foreground">Safety guides</a></li>
+              </ul>
             </div>
           </div>
         </aside>
       </div>
-
-      {/* Inline script to power TOC, progress, share, anchors */}
-      <script
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html: `(() => {
-            const content = document.getElementById('article-content');
-            if (!content) return;
-
-            // 1) Reading progress
-            const progressEl = document.getElementById('reading-progress');
-            const updateProgress = () => {
-              const total = content.scrollHeight - window.innerHeight;
-              const scrolled = window.scrollY - (content.offsetTop - 80);
-              const pct = Math.max(0, Math.min(1, scrolled / (total || 1)));
-              if (progressEl) progressEl.style.width = (pct * 100).toFixed(2) + '%';
-            };
-            updateProgress();
-            window.addEventListener('scroll', updateProgress, { passive: true });
-            window.addEventListener('resize', updateProgress);
-
-            // 2) Build TOC & add anchors
-            const toc = document.getElementById('toc');
-            const headings = content.querySelectorAll('h2, h3');
-            const mkId = (txt) => txt.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-');
-            headings.forEach((h) => {
-              if (!h.id) h.id = mkId(h.textContent || '');
-              // add copy anchor
-              const btn = document.createElement('button');
-              btn.textContent = '¶';
-              btn.setAttribute('aria-label','Copy heading link');
-              btn.className = 'ml-2 text-xs text-foreground/40 hover:text-brand';
-              btn.addEventListener('click', () => {
-                const url = location.origin + location.pathname + '#' + h.id;
-                navigator.clipboard?.writeText(url);
-              });
-              h.appendChild(btn);
-            });
-            if (toc && headings.length) {
-              toc.innerHTML = '';
-              headings.forEach((h) => {
-                const a = document.createElement('a');
-                a.href = '#' + h.id;
-                a.textContent = h.textContent || '';
-                a.className = (h.tagName === 'H2') ? 'block py-1 hover:text-foreground' : 'block pl-4 py-1 text-foreground/60 hover:text-foreground';
-                toc.appendChild(a);
-              });
-            }
-
-            // 3) Share
-            const copy1 = document.getElementById('copy-url-btn');
-            const copy2 = document.getElementById('share-copy');
-            const doCopy = () => navigator.clipboard?.writeText(location.href);
-            copy1?.addEventListener('click', doCopy);
-            copy2?.addEventListener('click', doCopy);
-            const x = document.getElementById('share-x');
-            const tg = document.getElementById('share-tg');
-            if (x) x.setAttribute('href', 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(document.title + ' ' + location.href));
-            if (tg) tg.setAttribute('href', 'https://t.me/share/url?url=' + encodeURIComponent(location.href) + '&text=' + encodeURIComponent(document.title));
-
-            // 4) Feedback (stub)
-            document.querySelectorAll('[data-feedback]').forEach((el) => {
-              el.addEventListener('click', (e) => {
-                const val = (e.currentTarget).getAttribute('data-feedback');
-                alert('Thanks for your feedback: ' + val);
-              });
-            });
-          })();`,
-        }}
-      />
     </article>
   );
 }
